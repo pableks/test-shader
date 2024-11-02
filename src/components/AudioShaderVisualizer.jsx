@@ -83,6 +83,23 @@ const AudioShaderVisualizer = () => {
   const [uvScale, setUVScale] = useState(1.5);
 
   useEffect(() => {
+    const preventScroll = (e) => {
+      e.preventDefault();
+    };
+
+    const sliders = document.querySelectorAll('.slider-container');
+    sliders.forEach(slider => {
+      slider.addEventListener('touchmove', preventScroll, { passive: false });
+    });
+
+    return () => {
+      sliders.forEach(slider => {
+        slider.removeEventListener('touchmove', preventScroll);
+      });
+    };
+  }, []);
+
+  useEffect(() => {
     const canvas = canvasRef.current;
     const gl = canvas.getContext('webgl');
     glRef.current = gl;
@@ -241,7 +258,7 @@ const AudioShaderVisualizer = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-2 sm:p-4 bg-zinc-900 min-h-screen">
+    <div className="w-full max-w-4xl mx-auto p-2 sm:p-4 bg-zinc-900 min-h-screen overflow-auto">
       <Card className="bg-zinc-800 border-zinc-700">
         <CardHeader>
           <CardTitle className="font-mono text-gray-100 text-xl sm:text-2xl">Dynamic Shader Visualizer</CardTitle>
@@ -256,10 +273,7 @@ const AudioShaderVisualizer = () => {
             className="w-full aspect-[4/3] bg-black rounded-lg mb-4"
           />
           
-          {/* Audio Controls */}
           <div className="flex flex-wrap gap-2 mb-4">
-           
-            
             <Button
               onClick={toggleDirection}
               variant="outline"
@@ -270,10 +284,10 @@ const AudioShaderVisualizer = () => {
             </Button>
           </div>
           
-      
           <div className="grid gap-4 sm:gap-6">
             <div className="space-y-4">
-              <div>
+              {/* Wrap each slider in a container with touch-specific styling */}
+              <div className="slider-container touch-none">
                 <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
                   UV Scale ({uvScale.toFixed(1)})
                 </label>
@@ -287,7 +301,7 @@ const AudioShaderVisualizer = () => {
                 />
               </div>
               
-              <div>
+              <div className="slider-container touch-none">
                 <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
                   Amplitude ({amplitude.toFixed(2)})
                 </label>
@@ -301,7 +315,7 @@ const AudioShaderVisualizer = () => {
                 />
               </div>
   
-              <div>
+              <div className="slider-container touch-none">
                 <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
                   Speed ({speed.toFixed(2)})
                 </label>
@@ -315,7 +329,7 @@ const AudioShaderVisualizer = () => {
                 />
               </div>
   
-              <div>
+              <div className="slider-container touch-none">
                 <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
                   Color Shift ({colorShift.toFixed(1)})
                 </label>
@@ -329,7 +343,7 @@ const AudioShaderVisualizer = () => {
                 />
               </div>
   
-              <div>
+              <div className="slider-container touch-none">
                 <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
                   Iterations ({iterations.toFixed(1)})
                 </label>
