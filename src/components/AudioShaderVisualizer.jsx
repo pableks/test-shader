@@ -81,20 +81,50 @@ const AudioShaderVisualizer = () => {
   const [colorShift, setColorShift] = useState(0.4);
   const [iterations, setIterations] = useState(1.0);
   const [uvScale, setUVScale] = useState(1.5);
+  useEffect(() => {
+    const touchStartPositions = new Map();
 
-  const handleTouchStart = (e) => {
-    const target = e.target;
-    if (target.matches('[role="slider"]')) {
-      e.stopPropagation();
-    }
-  };
+    const handleTouchStart = (e) => {
+      const touch = e.touches[0];
+      touchStartPositions.set(e.target, {
+        x: touch.clientX,
+        y: touch.clientY
+      });
+    };
 
-  const handleTouchMove = (e) => {
-    const target = e.target;
-    if (target.matches('[role="slider"]')) {
-      e.stopPropagation();
-    }
-  };
+    const handleTouchMove = (e) => {
+      const startPos = touchStartPositions.get(e.target);
+      if (!startPos) return;
+
+      const touch = e.touches[0];
+      const deltaX = Math.abs(touch.clientX - startPos.x);
+      const deltaY = Math.abs(touch.clientY - startPos.y);
+
+      // If horizontal movement is greater than vertical movement on a slider
+      if (deltaX > deltaY && e.target.closest('.slider-thumb')) {
+        e.preventDefault();
+      }
+    };
+
+    const handleTouchEnd = (e) => {
+      touchStartPositions.delete(e.target);
+    };
+
+    const sliders = document.querySelectorAll('.slider-container');
+    sliders.forEach(slider => {
+      slider.addEventListener('touchstart', handleTouchStart, { passive: true });
+      slider.addEventListener('touchmove', handleTouchMove, { passive: false });
+      slider.addEventListener('touchend', handleTouchEnd, { passive: true });
+    });
+
+    return () => {
+      sliders.forEach(slider => {
+        slider.removeEventListener('touchstart', handleTouchStart);
+        slider.removeEventListener('touchmove', handleTouchMove);
+        slider.removeEventListener('touchend', handleTouchEnd);
+      });
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -255,55 +285,50 @@ const AudioShaderVisualizer = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-2 sm:p-4 bg-zinc-900 min-h-screen">
-      <Card className="bg-zinc-800 border-zinc-700">
-        <CardHeader>
-          <CardTitle className="font-mono text-gray-100 text-xl sm:text-2xl">Dynamic Shader Visualizer</CardTitle>
-          <CardTitle className="font-mono text-gray-100 text-xs sm:text-xs">by try.pabl0</CardTitle>
-          <CardTitle className="font-mono text-gray-100 text-xs sm:text-xs">original shader by kishimisu</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <canvas
-            ref={canvasRef}
-            width={800}
-            height={600}
-            className="w-full aspect-[4/3] bg-black rounded-lg mb-4"
-          />
-          
-          <div className="flex flex-wrap gap-2 mb-4">
-            <Button
-              onClick={toggleDirection}
-              variant="outline"
-              className="font-mono flex-1 min-w-[120px] bg-zinc-700 hover:bg-zinc-600 text-zinc-100"
-            >
-              <ArrowLeftRight className="w-4 h-4 mr-2" />
-              {direction > 0 ? 'Forward' : 'Reverse'}
-            </Button>
-          </div>
-          
-          <div className="grid gap-4 sm:gap-6">
-            <div className="space-y-4">
-              <div 
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
+    <div className="min-h-screen w-full bg-zinc-900">
+      <div className="max-w-4xl mx-auto p-2 sm:p-4 overflow-y-auto">
+        <Card className="bg-zinc-800 border-zinc-700">
+          <CardHeader>
+            <CardTitle className="font-mono text-gray-100 text-xl sm:text-2xl">Dynamic Shader Visualizer</CardTitle>
+            <CardTitle className="font-mono text-gray-100 text-xs sm:text-xs">by try.pabl0</CardTitle>
+            <CardTitle className="font-mono text-gray-100 text-xs sm:text-xs">original shader by kishimisu</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <canvas
+              ref={canvasRef}
+              width={800}
+              height={600}
+              className="w-full aspect-[4/3] bg-black rounded-lg mb-4"
+            />
+            
+            <div className="flex flex-wrap gap-2 mb-4">
+              <Button
+                onClick={toggleDirection}
+                variant="outline"
+                className="font-mono flex-1 min-w-[120px] bg-zinc-700 hover:bg-zinc-600 text-zinc-100"
               >
-                <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
-                  UV Scale ({uvScale.toFixed(1)})
-                </label>
-                <Slider
-                  value={[uvScale]}
-                  onValueChange={(value) => setUVScale(value[0])}
-                  min={0.1}
-                  max={3.5}
-                  step={0.01}
-                  className="cursor-pointer"
-                />
-              </div>
+                <ArrowLeftRight className="w-4 h-4 mr-2" />
+                {direction > 0 ? 'Forward' : 'Reverse'}
+              </Button>
+            </div>
+            
+            <div className="grid gap-4 sm:gap-6">
+              <div className="space-y-4">
+                <div className="slider-container">
+                  <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
+                    UV Scale ({uvScale.toFixed(1)})
+                  </label>
+                  <Slider
+                    value={[uvScale]}
+                    onValueChange={(value) => setUVScale(value[0])}
+                    min={0.1}
+                    max={3.5}
+                    step={0.01}
+                    className="cursor-pointer"
+                  />
+                </div>
               
-              <div 
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-              >
+              <div className="slider-container touch-none">
                 <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
                   Amplitude ({amplitude.toFixed(2)})
                 </label>
@@ -317,10 +342,7 @@ const AudioShaderVisualizer = () => {
                 />
               </div>
   
-              <div 
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-              >
+              <div className="slider-container touch-none">
                 <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
                   Speed ({speed.toFixed(2)})
                 </label>
@@ -334,10 +356,7 @@ const AudioShaderVisualizer = () => {
                 />
               </div>
   
-              <div 
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-              >
+              <div className="slider-container touch-none">
                 <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
                   Color Shift ({colorShift.toFixed(1)})
                 </label>
@@ -351,10 +370,7 @@ const AudioShaderVisualizer = () => {
                 />
               </div>
   
-              <div 
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-              >
+              <div className="slider-container touch-none">
                 <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
                   Iterations ({iterations.toFixed(1)})
                 </label>
@@ -371,6 +387,7 @@ const AudioShaderVisualizer = () => {
           </div>
         </CardContent>
       </Card>
+    </div>
     </div>
   );
 };
