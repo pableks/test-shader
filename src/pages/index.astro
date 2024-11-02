@@ -1,0 +1,31 @@
+---
+import '@/styles/globals.css'
+import Layout from '../layouts/Layout.astro';
+import AudioShaderVisualizer from '../components/AudioShaderVisualizer';
+---
+
+<Layout title="Orthographic Grid Homepage">
+	<AudioShaderVisualizer client:load />
+</Layout>
+
+<style>
+	:root {
+		--background: 0, 0, 0;
+		--accent: 136, 58, 234;
+		--accent-light: 224, 204, 250;
+		--accent-dark: 49, 10, 101;
+		--accent-gradient: linear-gradient(
+			45deg,
+			rgb(var(--accent)),
+			rgb(var(--accent-light)) 30%,
+			rgb(0, 0, 0) 60%
+		);
+	}
+	html, body {
+		background-color: #18181B;
+		margin: 0;
+		padding: 0;
+		height: 100%;
+		overflow: hidden;
+	}
+</style>

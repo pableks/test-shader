@@ -1,0 +1,62 @@
+---
+// OrthographicGridHomepage.astro
+import React from 'react';
+import AudioShaderVisualizer from './AudioShaderVisualizer.jsx';
+---
+
+<AudioShaderVisualizer client:load />
+
+<style>
+  /* Global styles for the component */
+  :global(.slider-container) {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  :global(.slider-label) {
+    width: 150px;
+    color: white;
+    font-family: Arial, sans-serif;
+  }
+
+  :global(.slider) {
+    --slider-width: 200px;
+    --slider-height: 12px;
+    --slider-bg: rgb(82, 82, 82);
+    --slider-border-radius: 999px;
+    --level-color: #fff;
+    --level-transition-duration: .1s;
+
+    cursor: pointer;
+    display: inline-flex;
+    flex-direction: row-reverse;
+    align-items: center;
+  }
+
+  :global(.level) {
+    -webkit-appearance: none;
+    appearance: none;
+    width: var(--slider-width);
+    height: var(--slider-height);
+    background: var(--slider-bg);
+    overflow: hidden;
+    border-radius: var(--slider-border-radius);
+    transition: height var(--level-transition-duration);
+    cursor: inherit;
+  }
+
+  :global(.level::-webkit-slider-thumb) {
+    -webkit-appearance: none;
+    width: 0;
+    height: 0;
+    box-shadow: -200px 0 0 200px var(--level-color);
+  }
+
+  :global(.level::-moz-range-thumb) {
+    appearance: none;
+    width: 0;
+    height: 0;
+    box-shadow: -200px 0 0 200px var(--level-color);
+  }
+</style>
