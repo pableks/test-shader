@@ -82,22 +82,19 @@ const AudioShaderVisualizer = () => {
   const [iterations, setIterations] = useState(1.0);
   const [uvScale, setUVScale] = useState(1.5);
 
-  useEffect(() => {
-    const preventScroll = (e) => {
-      e.preventDefault();
-    };
+  const handleTouchStart = (e) => {
+    const target = e.target;
+    if (target.matches('[role="slider"]')) {
+      e.stopPropagation();
+    }
+  };
 
-    const sliders = document.querySelectorAll('.slider-container');
-    sliders.forEach(slider => {
-      slider.addEventListener('touchmove', preventScroll, { passive: false });
-    });
-
-    return () => {
-      sliders.forEach(slider => {
-        slider.removeEventListener('touchmove', preventScroll);
-      });
-    };
-  }, []);
+  const handleTouchMove = (e) => {
+    const target = e.target;
+    if (target.matches('[role="slider"]')) {
+      e.stopPropagation();
+    }
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -258,7 +255,7 @@ const AudioShaderVisualizer = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-2 sm:p-4 bg-zinc-900 min-h-screen overflow-auto">
+    <div className="w-full max-w-4xl mx-auto p-2 sm:p-4 bg-zinc-900 min-h-screen">
       <Card className="bg-zinc-800 border-zinc-700">
         <CardHeader>
           <CardTitle className="font-mono text-gray-100 text-xl sm:text-2xl">Dynamic Shader Visualizer</CardTitle>
@@ -286,8 +283,10 @@ const AudioShaderVisualizer = () => {
           
           <div className="grid gap-4 sm:gap-6">
             <div className="space-y-4">
-              {/* Wrap each slider in a container with touch-specific styling */}
-              <div className="slider-container touch-none">
+              <div 
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+              >
                 <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
                   UV Scale ({uvScale.toFixed(1)})
                 </label>
@@ -301,7 +300,10 @@ const AudioShaderVisualizer = () => {
                 />
               </div>
               
-              <div className="slider-container touch-none">
+              <div 
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+              >
                 <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
                   Amplitude ({amplitude.toFixed(2)})
                 </label>
@@ -315,7 +317,10 @@ const AudioShaderVisualizer = () => {
                 />
               </div>
   
-              <div className="slider-container touch-none">
+              <div 
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+              >
                 <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
                   Speed ({speed.toFixed(2)})
                 </label>
@@ -329,7 +334,10 @@ const AudioShaderVisualizer = () => {
                 />
               </div>
   
-              <div className="slider-container touch-none">
+              <div 
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+              >
                 <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
                   Color Shift ({colorShift.toFixed(1)})
                 </label>
@@ -343,7 +351,10 @@ const AudioShaderVisualizer = () => {
                 />
               </div>
   
-              <div className="slider-container touch-none">
+              <div 
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+              >
                 <label className="font-mono block mb-2 text-sm sm:text-base text-zinc-300">
                   Iterations ({iterations.toFixed(1)})
                 </label>
